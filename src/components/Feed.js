@@ -3,6 +3,9 @@ import { createTweet, getTweets } from "../services/getTweets";
 import { ErrorMessage } from "./ErrorMessage";
 import Header from "./Header";
 import { Tweet } from "./Tweet";
+import jwtDecode from 'jwt-decode'; 
+import { Link } from "react-router-dom";
+
 
 class Feed extends Component {
     constructor(props) {
@@ -13,6 +16,7 @@ class Feed extends Component {
             isLoading: true,
             error: null,
             newTweetText: '',
+            user: {},
         }
     }
 
@@ -34,9 +38,7 @@ class Feed extends Component {
 
   
 
-    async componentDidMount() {
-         this.handlePopulateTweets();   
-    }
+
 
     async handlePopulateTweets() {
         this.setState( {
@@ -58,8 +60,30 @@ class Feed extends Component {
         }
     }
 
+    async componentDidMount() {
+        const { history } = this.props; 
+        //CHeck if we have a token in local storage
+        const token = localStorage.getItem('TWITTER_TOKEN'); 
+
+        //If not - redirect to /login
+        if(!token) {
+            history.replace('/login'); 
+            return; 
+        }
+
+        //Else - get info from token and show in UI
+        const payload = jwtDecode(token); 
+        this.setState({
+            user: payload,
+        }); 
+
+        //Fetch tweets from server
+
+         await this.handlePopulateTweets();   
+    }
+
     render() {
-    const { tweets, error, isLoading, newTweetText } = this.state;
+    const { tweets, error, isLoading, newTweetText, user } = this.state;
 
     if(error) {
         return(
@@ -73,9 +97,6 @@ class Feed extends Component {
         )
     }
 
-   
-    
-
     const tweet = tweets.map((tweet) => { 
         return <Tweet tweetInfo={tweet} />
     }
@@ -84,6 +105,8 @@ class Feed extends Component {
         return(
             <>
                <Header />
+               <h1> Feed (logged in as {user.name})</h1>
+               <Link to="/logout">Log out</Link>
                <div>
                 <label>
                     Write a new Tweet

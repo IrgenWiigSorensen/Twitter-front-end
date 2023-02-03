@@ -7,6 +7,7 @@ import UserFeed from './components/UserFeed';
 
 function App() {
   return (
+
     <BrowserRouter>
       <Switch>
         <Route path="/" exact component={Feed} />
@@ -20,4 +21,10 @@ function App() {
 
 export default App;
 
+
+//AWS for deployment
+//Google cloud for deployment
+//Heroku not free anymore
+//render.com is free
+//Fly.io
 
